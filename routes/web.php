@@ -5,6 +5,7 @@ use App\Http\Controllers\POSController;
 use App\Http\Controllers\ProductsController;
 use App\Http\Controllers\PenjualanController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\LevelController;
 
 
 Route::get('/home', [POSController::class, 'home']);
@@ -19,3 +20,5 @@ Route::prefix('category')->group(function() {
 Route::get('/penjualan', [PenjualanController::class, 'penjualan']);
 
 Route::get('/userPOS', [UserController::class, 'user']);
+
+Route::get('/level', [LevelController::class, 'index']);
