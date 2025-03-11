@@ -9,6 +9,9 @@ use App\Http\Controllers\LevelController;
 use App\Http\Controllers\KategoriController;
 
 
+Route::get('/', function () {
+    return view ('welcome');
+});
 Route::get('/home', [POSController::class, 'home']);
 
 Route::prefix('category')->group(function() {
