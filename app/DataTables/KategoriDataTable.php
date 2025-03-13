@@ -2,16 +2,13 @@
 
 namespace App\DataTables;
 
-use App\Models\Kategori;
+use App\Models\KategoriModel;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
-use Yajra\DataTables\Html\Editor\Editor;
-use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
-use App\Models\KategoriModel;
 
 class KategoriDataTable extends DataTable
 {
@@ -23,7 +20,12 @@ class KategoriDataTable extends DataTable
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
-            ->addColumn('action', 'kategori.action')
+            ->addColumn('action', function ($row) {
+                
+                return '<a href="' .route('kategori.edit', ['id' => $row->kategori_id]) . '" class="btn btn-sm btn-warning">Edit</a>
+                </a>';
+            })
+            ->rawColumns(['action'])
             ->setRowId('id');
     }
 
@@ -44,7 +46,6 @@ class KategoriDataTable extends DataTable
                     ->setTableId('kategori-table')
                     ->columns($this->getColumns())
                     ->minifiedAjax()
-                    //->dom('Bfrtip')
                     ->orderBy(1)
                     ->selectStyleSingle()
                     ->buttons([
@@ -63,16 +64,16 @@ class KategoriDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            /*Column::computed('action')
-                  ->exportable(false)
-                  ->printable(false)
-                  ->width(60)
-                  ->addClass('text-center'), */
             Column::make('kategori_id'),
             Column::make('kategori_kode'),
             Column::make('kategori_nama'),
             Column::make('created_at'),
             Column::make('updated_at'),
+            Column::computed('action')
+                  ->exportable(false)
+                  ->printable(false)
+                  ->width(100)
+                  ->addClass('text-center'),
         ];
     }
 
@@ -84,3 +85,4 @@ class KategoriDataTable extends DataTable
         return 'Kategori_' . date('YmdHis');
     }
 }
+ 
