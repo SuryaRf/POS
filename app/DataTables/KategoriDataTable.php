@@ -21,12 +21,20 @@ class KategoriDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addColumn('action', function ($row) {
-                
-                return '<a href="' .route('kategori.edit', ['id' => $row->kategori_id]) . '" class="btn btn-sm btn-warning">Edit</a>
-                </a>';
+                return '<a href="' . route('kategori.edit',  ['id' => $row->kategori_id]) . '" class="btn btn-sm btn-warning">
+                <i class="fas fa-edit"></i>
+        </a>
+        <form action="' . route('kategori.destroy',  $row->kategori_id) . '" method="POST" style="display:inline;">
+        ' . csrf_field() . '
+        ' . method_field('DELETE') . '
+        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Hapus kategori ini?\')">
+        <i class="fas fa-trash"></i>
+        </button>
+        </form>
+        ';
             })
             ->rawColumns(['action'])
-            ->setRowId('id');
+            ->setRowId('kategori_id');
     }
 
     /**
@@ -43,19 +51,19 @@ class KategoriDataTable extends DataTable
     public function html(): HtmlBuilder
     {
         return $this->builder()
-                    ->setTableId('kategori-table')
-                    ->columns($this->getColumns())
-                    ->minifiedAjax()
-                    ->orderBy(1)
-                    ->selectStyleSingle()
-                    ->buttons([
-                        Button::make('excel'),
-                        Button::make('csv'),
-                        Button::make('pdf'),
-                        Button::make('print'),
-                        Button::make('reset'),
-                        Button::make('reload')
-                    ]);
+            ->setTableId('kategori-table')
+            ->columns($this->getColumns())
+            ->minifiedAjax()
+            ->orderBy(1)
+            ->selectStyleSingle()
+            ->buttons([
+                Button::make('excel'),
+                Button::make('csv'),
+                Button::make('pdf'),
+                Button::make('print'),
+                Button::make('reset'),
+                Button::make('reload')
+            ]);
     }
 
     /**
@@ -70,10 +78,10 @@ class KategoriDataTable extends DataTable
             Column::make('created_at'),
             Column::make('updated_at'),
             Column::computed('action')
-                  ->exportable(false)
-                  ->printable(false)
-                  ->width(100)
-                  ->addClass('text-center'),
+                ->exportable(false)
+                ->printable(false)
+                ->width(100)
+                ->addClass('text-center'),
         ];
     }
 
@@ -85,4 +93,3 @@ class KategoriDataTable extends DataTable
         return 'Kategori_' . date('YmdHis');
     }
 }
- 
