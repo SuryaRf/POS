@@ -7,11 +7,10 @@ use App\Http\Controllers\PenjualanController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\LevelController;
 use App\Http\Controllers\KategoriController;
+use App\Http\Controllers\WelcomeController;
 
 
-Route::get('/', function () {
-    return view ('welcome');
-});
+Route::get('/', [WelcomeController::class, 'index']);
 Route::get('/home', [POSController::class, 'home']);
 
 Route::prefix('category')->group(function() {
