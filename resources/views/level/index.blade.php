@@ -3,9 +3,9 @@
 @section('content')
     <div class="card card-outline card-primary">
         <div class="card-header">
-            <h3 class="card-title">{{ $page->title ?? 'Daftar Kategori' }}</h3>
+            <h3 class="card-title">{{ $page->title ?? 'Daftar Level' }}</h3>
             <div class="card-tools">
-                <a class="btn btn-sm btn-primary mt-1" href="{{ url('kategori/create') }}">Tambah</a>
+                <a class="btn btn-sm btn-primary mt-1" href="{{ url('level/create') }}">Tambah</a>
             </div>
         </div>
         <div class="card-body">
@@ -16,13 +16,13 @@
                 <div class="alert alert-danger">{{ session('error') }}</div>
             @endif
             
-            <table class="table table-bordered table-striped table-hover table-sm" id="table_kategori">
+            <table class="table table-bordered table-striped table-hover table-sm" id="table_level">
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Kategori ID</th>
-                        <th>Kategori Kode</th>
-                        <th>Kategori Nama</th>
+                        <th>Level ID</th>
+                        <th>Level Kode</th>
+                        <th>Level Nama</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -38,20 +38,20 @@
 @push('js')
     <script defer>
         $(document).ready(function () {
-            var dataLevel = $('#table_kategori').DataTable({
+            var dataLevel = $('#table_level').DataTable({
                 processing: true, // Tambahkan loading indicator
                 serverSide: true, 
                 ajax: {
-                    url: "{{ url('kategori/list') }}",
+                    url: "{{ url('level/list') }}",
                     type: "POST",
                     headers: { 'X-CSRF-TOKEN': "{{ csrf_token() }}" }, // Menambahkan CSRF Token ke headers
                     dataType: "json"
                 },
                 columns: [
                     { data: "DT_RowIndex", className: "text-center", orderable: false, searchable: false },
-                    { data: "kategori_id", orderable: true, searchable: true },
-                    { data: "kategori_kode", orderable: true, searchable: true },
-                    { data: "kategori_nama", orderable: true, searchable: true },
+                    { data: "level_id", orderable: true, searchable: true },
+                    { data: "level_kode", orderable: true, searchable: true },
+                    { data: "level_nama", orderable: true, searchable: true },
                     { data: "aksi", orderable: false, searchable: false, className: "text-center" }
                 ],
                 language: {
@@ -70,9 +70,9 @@
                 }
             });
 
-            // Filter berdasarkan kategori_id (jika ada dropdown filter)
-            $('#kategori_id').on('change', function() {
-                dataKategori.ajax.reload();
+            // Filter berdasarkan level_id (jika ada dropdown filter)
+            $('#level_id').on('change', function() {
+                dataLevel.ajax.reload();
             });
         });
     </script>

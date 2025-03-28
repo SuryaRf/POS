@@ -3,9 +3,9 @@
 @section('content')
     <div class="card card-outline card-primary">
         <div class="card-header">
-            <h3 class="card-title">{{ $page->title ?? 'Daftar Kategori' }}</h3>
+            <h3 class="card-title">{{ $page->title ?? 'Daftar Supplier' }}</h3>
             <div class="card-tools">
-                <a class="btn btn-sm btn-primary mt-1" href="{{ url('kategori/create') }}">Tambah</a>
+                <a class="btn btn-sm btn-primary mt-1" href="{{ url('supplier/create') }}">Tambah</a>
             </div>
         </div>
         <div class="card-body">
@@ -16,13 +16,14 @@
                 <div class="alert alert-danger">{{ session('error') }}</div>
             @endif
             
-            <table class="table table-bordered table-striped table-hover table-sm" id="table_kategori">
+            <table class="table table-bordered table-striped table-hover table-sm" id="table_supplier">
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Kategori ID</th>
-                        <th>Kategori Kode</th>
-                        <th>Kategori Nama</th>
+                        <th>Supplier ID</th>
+                        <th>Supplier Kode</th>
+                        <th>Supplier Nama</th>
+                        <th>Supplier Alamat</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -38,20 +39,21 @@
 @push('js')
     <script defer>
         $(document).ready(function () {
-            var dataLevel = $('#table_kategori').DataTable({
+            var dataLevel = $('#table_supplier').DataTable({
                 processing: true, // Tambahkan loading indicator
                 serverSide: true, 
                 ajax: {
-                    url: "{{ url('kategori/list') }}",
+                    url: "{{ url('supplier/list') }}",
                     type: "POST",
                     headers: { 'X-CSRF-TOKEN': "{{ csrf_token() }}" }, // Menambahkan CSRF Token ke headers
                     dataType: "json"
                 },
                 columns: [
                     { data: "DT_RowIndex", className: "text-center", orderable: false, searchable: false },
-                    { data: "kategori_id", orderable: true, searchable: true },
-                    { data: "kategori_kode", orderable: true, searchable: true },
-                    { data: "kategori_nama", orderable: true, searchable: true },
+                    { data: "supplier_id", orderable: true, searchable: true },
+                    { data: "supplier_kode", orderable: true, searchable: true },
+                    { data: "supplier_nama", orderable: true, searchable: true },
+                    { data: "supplier_alamat", orderable: true, searchable: true },
                     { data: "aksi", orderable: false, searchable: false, className: "text-center" }
                 ],
                 language: {
@@ -70,9 +72,9 @@
                 }
             });
 
-            // Filter berdasarkan kategori_id (jika ada dropdown filter)
-            $('#kategori_id').on('change', function() {
-                dataKategori.ajax.reload();
+            // Filter berdasarkan supplier_id (jika ada dropdown filter)
+            $('#supplier_id').on('change', function() {
+                dataSupplier.ajax.reload();
             });
         });
     </script>

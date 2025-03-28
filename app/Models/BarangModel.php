@@ -9,6 +9,7 @@ use App\Models\KategoriModel;
 
 class BarangModel extends Model
 {
+    protected $table = 'm_barangs';
     public function kategori(): BelongsTo
     {
         return $this->belongsTo(KategoriModel::class, 'kategori_id', 'kategori_id');
