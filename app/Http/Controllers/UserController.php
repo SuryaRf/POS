@@ -7,6 +7,7 @@ use App\Models\UserModel;
 use Illuminate\Support\Facades\Hash;
 use Yajra\DataTables\Facades\DataTables;
 use App\Models\LevelModel;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -33,9 +34,9 @@ class UserController extends Controller
     {
         $users = UserModel::select('user_id', 'username', 'nama', 'level_id')
             ->with('level');
-            // ->orderBy('user_id', 'asc'); // Urutkan berdasarkan user_id
-        
-        if ($request -> level_id) {
+        // ->orderBy('user_id', 'asc'); // Urutkan berdasarkan user_id
+
+        if ($request->level_id) {
             $users->where('level_id', $request->level_id);
         }
 
@@ -73,43 +74,43 @@ class UserController extends Controller
 
     // Menyimpan data user baru
     public function store(Request $request)
-{
-    // Validasi data yang masuk
-    $request->validate([
-        'username' => 'required|string|min:3|unique:m_users,username',
-        'nama' => 'required|string|max:100',
-        'password' => 'required|min:5',
-        'level_id' => 'required|integer',
-    ]);
+    {
+        // Validasi data yang masuk
+        $request->validate([
+            'username' => 'required|string|min:3|unique:m_users,username',
+            'nama' => 'required|string|max:100',
+            'password' => 'required|min:5',
+            'level_id' => 'required|integer',
+        ]);
 
-    // Buat user baru menggunakan Eloquent Mass Assignment
-    UserModel::create([
-        'username' => $request->username,
-        'nama' => $request->nama,
-        'password' => Hash::make($request->password), // Gunakan Hash::make untuk enkripsi
-        'level_id' => $request->level_id,
-    ]);
+        // Buat user baru menggunakan Eloquent Mass Assignment
+        UserModel::create([
+            'username' => $request->username,
+            'nama' => $request->nama,
+            'password' => Hash::make($request->password), // Gunakan Hash::make untuk enkripsi
+            'level_id' => $request->level_id,
+        ]);
 
-    // Redirect dengan pesan sukses
-    return redirect('/user')->with('success', 'Data user berhasil disimpan.');
-}
-
-
-public function destroy(string $id)
-{
-    $check = UserModel::find($id);
-    if (!$check) {
-        return redirect('/user')->with('error', 'Data user tidak ditemukan');
+        // Redirect dengan pesan sukses
+        return redirect('/user')->with('success', 'Data user berhasil disimpan.');
     }
-    
-    try {
-        UserModel::destroy($id); // Hapus data user
-        return redirect('/user')->with('success', 'Data user berhasil dihapus');
-    } catch (\Illuminate\Database\QueryException $e) {
-        // Jika terjadi error ketika menghapus data, redirect kembali ke halaman dengan membawa pesan error
-        return redirect('/user')->with('error', 'Data user gagal dihapus karena masih terdapat tabel lain yang terkait dengan data ini');
+
+
+    public function destroy(string $id)
+    {
+        $check = UserModel::find($id);
+        if (!$check) {
+            return redirect('/user')->with('error', 'Data user tidak ditemukan');
+        }
+
+        try {
+            UserModel::destroy($id); // Hapus data user
+            return redirect('/user')->with('success', 'Data user berhasil dihapus');
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Jika terjadi error ketika menghapus data, redirect kembali ke halaman dengan membawa pesan error
+            return redirect('/user')->with('error', 'Data user gagal dihapus karena masih terdapat tabel lain yang terkait dengan data ini');
+        }
     }
-}
 
 
     // Menampilkan detail user
@@ -130,61 +131,109 @@ public function destroy(string $id)
     }
 
     // Menampilkan halaman form edit user
-    public function edit(string $id) 
-{
-    $user = UserModel::find($id);
-    $level = LevelModel::all();
+    public function edit(string $id)
+    {
+        $user = UserModel::find($id);
+        $level = LevelModel::all();
 
-    $breadcrumb = (object) [
-        'title' => 'Edit User',
-        'list' => ['Home', 'User', 'Edit']
-    ];
+        $breadcrumb = (object) [
+            'title' => 'Edit User',
+            'list' => ['Home', 'User', 'Edit']
+        ];
 
-    $page = (object) [
-        'title' => 'Edit user'
-    ];
+        $page = (object) [
+            'title' => 'Edit user'
+        ];
 
-    $activeMenu = 'user'; // set menu yang sedang aktif
+        $activeMenu = 'user'; // set menu yang sedang aktif
 
-    return view('user.edit', [
-        'breadcrumb' => $breadcrumb,
-        'page' => $page,
-        'user' => $user,
-        'level' => $level, // Perbaikan tanda kutip
-        'activeMenu' => $activeMenu
-    ]);
-}
+        return view('user.edit', [
+            'breadcrumb' => $breadcrumb,
+            'page' => $page,
+            'user' => $user,
+            'level' => $level, // Perbaikan tanda kutip
+            'activeMenu' => $activeMenu
+        ]);
+    }
 
 
 
     // Menyimpan perubahan data user
     public function update(Request $request, string $id)
-{
-    $request->validate([
-        'username' => 'required|string|min:3|unique:m_users,username,' . $id . ',user_id',
-        'nama' => 'required|string|max:100',
-        'password' => 'nullable|min:5',
-        'level_id' => 'required|integer'
-    ]);
+    {
+        $request->validate([
+            'username' => 'required|string|min:3|unique:m_users,username,' . $id . ',user_id',
+            'nama' => 'required|string|max:100',
+            'password' => 'nullable|min:5',
+            'level_id' => 'required|integer'
+        ]);
 
-    // Ambil data user dari database
-    $user = UserModel::find($id);
+        // Ambil data user dari database
+        $user = UserModel::find($id);
 
-    // Cek apakah user ditemukan
-    if (!$user) {
-        return redirect('/user')->with('error', 'User tidak ditemukan');
+        // Cek apakah user ditemukan
+        if (!$user) {
+            return redirect('/user')->with('error', 'User tidak ditemukan');
+        }
+
+        // Update data user
+        $user->update([
+            'username' => $request->username,
+            'nama' => $request->nama,
+            'password' => $request->password ? bcrypt($request->password) : $user->password,
+            'level_id' => $request->level_id
+        ]);
+
+        return redirect('/user')->with('success', 'Data user berhasil diubah');
     }
 
-    // Update data user
-    $user->update([
-        'username' => $request->username,
-        'nama' => $request->nama,
-        'password' => $request->password ? bcrypt($request->password) : $user->password,
-        'level_id' => $request->level_id
-    ]);
 
-    return redirect('/user')->with('success', 'Data user berhasil diubah');
-}
+
+    // Tambah form ajax
+    public function create_ajax()
+    {
+        $level = LevelModel::select('level_id', 'level_nama')->get();
+        return view('user.create_ajax')->with('level', $level);
+    }
+
+    public function store_ajax(Request $request)
+    {
+        if ($request->ajax() || $request->wantsJson()) {
+            $rules = [
+                'level_id' => 'required|integer',
+                'username' => 'required|string|min:3|unique:m_users,username', // Perbaiki nama tabel
+                'nama' => 'required|string|max:100',
+                'password' => 'required|min:6',
+            ];
+
+            $validator = Validator::make($request->all(), $rules);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validasi Gagal',
+                    'msgField' => $validator->errors(),
+                ]);
+            }
+
+            // Enkripsi password sebelum membuat user
+            $userData = $request->except('password'); // Ambil semua input kecuali password
+            $userData['password'] = Hash::make($request->password); // Enkripsi password
+
+            UserModel::create($userData);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Data user berhasil disimpan'
+            ]);
+        }
+
+        return redirect()->route('user.index'); // Redirect jika bukan AJAX request (gunakan route() dan beri nama rute)
+    }
+
+
+    // Redirect jika request bukan AJAX atau JSON
+
 
 
     // public function index()

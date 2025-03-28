@@ -18,6 +18,8 @@ Route::group(['prefix' => 'user'], function () {
     Route::post('/list', [UserController :: class, 'list']);
     Route::get('/create', [UserController :: class, 'create' ]);
     Route::post('/', [UserController :: class, 'store']);
+    Route::get('/create_ajax', [UserController::class, 'create_ajax']); //menampilkan halaman form tambah user ajax
+    Route::post('/ajax', [UserController::class, 'store_ajax']); //menyimpan data user baru ajax
     Route::get('/{id}', [UserController :: class, 'show']);
     Route::get('/{id}/edit', [UserController :: class, 'edit' ]);
     Route::put('/{id}', [UserController :: class, 'update']);

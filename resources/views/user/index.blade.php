@@ -6,6 +6,8 @@
             <h3 class="card-title">{{ $page->title ?? 'Daftar Pengguna' }}</h3>
             <div class="card-tools">
                 <a class="btn btn-sm btn-primary mt-1" href="{{ url('user/create') }}">Tambah</a>
+                <button onclick="modalAction('{{ url('user/create_ajax') }}')" class="btn btn-sm btn-success mt-1">Tambah
+                    Ajax</button>
             </div>
         </div>
         <div class="card-body">
@@ -22,11 +24,11 @@
                         <div class="col-3">
                             <select class="form-control" id="level_id" name="level_id" required>
                                 <option value="">- Semua -</option>
-                                @if(isset($level))
+                                @isset($level)
                                     @foreach($level as $item)
                                         <option value="{{ $item->level_id }}">{{ $item->level_nama }}</option>
                                     @endforeach
-                                @endif
+                                @endisset
                             </select>
                             <small class="form-text text-muted">Level Pengguna</small>
                         </div>
@@ -46,37 +48,49 @@
             </table>
         </div>
     </div>
+    <div id="myModal" class="modal fade animate shake" tabindex="-1" role="dialog" data-backdrop="static"
+        data-keyboard="false" data-width="75%" aria-hidden="true"></div>
 @endsection
 
 @push('css')
 @endpush
 
 @push('js')
-    <script defer>
+    <script>
+        function modalAction(url = '') {
+            $('#myModal').load(url, function () {
+                $('#myModal').modal('show');
+            });
+        }
+
+        var dataUser;
         $(document).ready(function () {
-            var dataUser = $('#table_user').DataTable({
-                serverSide: true, 
+            dataUser = $('#table_user').DataTable({
+                processing: true,
+                serverSide: true,
                 ajax: {
                     url: "{{ url('user/list') }}",
                     type: "POST",
                     dataType: "json",
-                    data: function(d) {
+                    headers: { 'X-CSRF-TOKEN': "{{ csrf_token() }}" }, // Tambahkan CSRF header
+                    data: function (d) {
                         d.level_id = $('#level_id').val();
-                        d._token = "{{ csrf_token() }}"; // Menambahkan token CSRF
                     }
                 },
                 columns: [
                     { data: "DT_RowIndex", className: "text-center", orderable: false, searchable: false },
                     { data: "username", orderable: true, searchable: true },
                     { data: "nama", orderable: true, searchable: true },
-                    { data: "level.level_nama", orderable: false, searchable: false },
+                    { data: "level.level_nama", orderable: true, searchable: false },
                     { data: "aksi", orderable: false, searchable: false }
                 ]
             });
 
-            $('#level_id').on('change', function() {
-                dataUser.ajax.reload();
-            });
-        });
+            if ($('#level_id').length) {
+                $('#level_id').on('change', function () {
+                    dataUser.ajax.reload();
+                });
+            }
+        });     
     </script>
 @endpush
