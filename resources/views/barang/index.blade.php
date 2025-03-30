@@ -6,6 +6,8 @@
             <h3 class="card-title">{{ $page->title ?? 'Daftar Barang' }}</h3>
             <div class="card-tools">
                 <a class="btn btn-sm btn-primary mt-1" href="{{ url('barang/create') }}">Tambah</a>
+                <button onclick="modalAction('{{ url('barang/create_ajax') }}')" class="btn btn-sm btn-success mt-1">Tambah
+                    Ajax</button>
             </div>
         </div>
         <div class="card-body">
@@ -22,11 +24,11 @@
                         <div class="col-3">
                             <select class="form-control" id="kategori_id" name="kategori_id" required>
                                 <option value="">- Semua -</option>
-                                @if(isset($kategori))
+                                @isset($kategori)
                                     @foreach($kategori as $item)
                                         <option value="{{ $item->kategori_id }}">{{ $item->kategori_nama }}</option>
                                     @endforeach
-                                @endif
+                                @endisset
                             </select>
                             <small class="form-text text-muted">Kategori Barang</small>
                         </div>
@@ -37,48 +39,62 @@
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Barang ID</th>
-                        <th>Kategori</th>
                         <th>Kode Barang</th>
                         <th>Nama Barang</th>
+                        <th>Kategori</th>
+                        <th>Harga Beli</th>
+                        <th>Harga Jual</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
             </table>
         </div>
     </div>
+    <div id="myModal" class="modal fade animate shake" tabindex="-1" role="dialog" data-backdrop="static"
+        data-keyboard="false" data-width="75%" aria-hidden="true"></div>
 @endsection
 
 @push('css')
 @endpush
 
 @push('js')
-    <script defer>
+    <script>
+        function modalAction(url = '') {
+            $('#myModal').load(url, function () {
+                $('#myModal').modal('show');
+            });
+        }
+
+        var dataBarang;
         $(document).ready(function () {
-            var dataBarang = $('#table_barang').DataTable({
-                serverSide: true, 
+            dataBarang = $('#table_barang').DataTable({
+                processing: true,
+                serverSide: true,
                 ajax: {
                     url: "{{ url('barang/list') }}",
                     type: "POST",
                     dataType: "json",
-                    data: function(d) {
+                    headers: { 'X-CSRF-TOKEN': "{{ csrf_token() }}" }, // Tambahkan CSRF header
+                    data: function (d) {
                         d.kategori_id = $('#kategori_id').val();
-                        d._token = "{{ csrf_token() }}"; // Menambahkan token CSRF
                     }
                 },
                 columns: [
                     { data: "DT_RowIndex", className: "text-center", orderable: false, searchable: false },
-                    { data: "barang_id", orderable: true, searchable: true },
-                    { data: "kategori.kategori_nama", orderable: false, searchable: false },
                     { data: "barang_kode", orderable: true, searchable: true },
                     { data: "barang_nama", orderable: true, searchable: true },
+                    { data: "kategori.kategori_nama", orderable: true, searchable: false },
+                    { data: "harga_beli", orderable: true, searchable: true },
+                    { data: "harga_jual", orderable: true, searchable: true },
                     { data: "aksi", orderable: false, searchable: false }
                 ]
             });
 
-            $('#kategori_id').on('change', function() {
-                dataBarang.ajax.reload();
-            });
+            if ($('#kategori_id').length) {
+                $('#kategori_id').on('change', function () {
+                    dataBarang.ajax.reload();
+                });
+            }
         });
     </script>
 @endpush
