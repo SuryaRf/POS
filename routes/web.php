@@ -24,7 +24,7 @@ Route:: middleware(['auth'])->group(function(){ // artinya semua route di dalam 
 Route::get('/', [WelcomeController::class, 'index']);
 
 
-Route::group(['prefix' => 'user'], function () {
+Route::middleware(['auth', 'authorize:ADM,MNG'])->prefix('user')->group(function () {
     Route::get('/', [UserController :: class, 'index']);
     Route::post('/list', [UserController :: class, 'list']);
     Route::get('/create', [UserController :: class, 'create' ]);
@@ -41,7 +41,7 @@ Route::group(['prefix' => 'user'], function () {
     Route::delete('/{id}', [UserController :: class, 'destroy' ]);
 });
 
-Route::middleware(['auth', 'authorize:ADM'])->prefix('level')->group(function () {
+Route::middleware(['auth', 'authorize:ADM,MNG'])->prefix('level')->group(function () {
     Route::get('/', [LevelController::class, 'index']);
     Route::post('/list', [LevelController::class, 'list']);
     Route::get('/create', [LevelController::class, 'create']);
@@ -59,7 +59,7 @@ Route::middleware(['auth', 'authorize:ADM'])->prefix('level')->group(function ()
 });
 
 
-Route::group(['prefix' => 'kategori'], function () {
+Route::middleware(['auth', 'authorize:ADM,MNG'])->prefix('kategori')->group(function () {
     Route::get('/', [KategoriController :: class, 'index']);
     Route::post('/list', [KategoriController :: class, 'list']);
     Route::get('/create', [KategoriController :: class, 'create' ]);
@@ -76,7 +76,7 @@ Route::group(['prefix' => 'kategori'], function () {
     Route::delete('/{id}', [KategoriController :: class, 'destroy' ]);
 });
 
-Route::group(['prefix' => 'supplier'], function () {
+Route::middleware(['auth', 'authorize:ADM,MNG'])->prefix('supplier')->group(function () {
     Route::get('/', [SupplierController :: class, 'index']);
     Route::post('/list', [SupplierController :: class, 'list']);
     Route::get('/create', [SupplierController :: class, 'create' ]);
@@ -93,7 +93,7 @@ Route::group(['prefix' => 'supplier'], function () {
     Route::delete('/{id}', [SupplierController :: class, 'destroy' ]);
 });
 
-Route::group(['prefix' => 'barang'], function () {
+Route::middleware(['auth', 'authorize:ADM,MNG'])->prefix('barang')->group(function () {
     Route::get('/', [BarangController :: class, 'index']);
     Route::post('/list', [BarangController :: class, 'list']);
     Route::get('/create', [BarangController :: class, 'create' ]);
