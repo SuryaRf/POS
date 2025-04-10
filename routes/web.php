@@ -18,6 +18,11 @@ Route:: get('login', [AuthController::class,'login' ])->name('login' );
 Route:: post('login', [AuthController:: class, 'postlogin' ]);
 Route:: get('logout', [AuthController:: class, 'logout' ])->middleware('auth' );
 
+//register
+Route:: get('register', [AuthController::class, 'register'])->name('register')->middleware('guest');
+Route:: post('register', [AuthController::class, 'postregister'])->name('postregister')->middleware('guest');
+
+
 Route:: middleware(['auth'])->group(function(){ // artinya semua route di dalam group ini harus login dulu
 
 // masukkan semua route yang perlu autentikasi di sini
