@@ -101,6 +101,9 @@
     </div>
     <!-- ./wrapper -->
 
+    <!-- jquery-validation -->
+<script src="{{ asset('adminlte/plugins/jquery-validation/jquery.validate.js')}}"></script>
+<script src="{{ asset('adminlte/plugins/jquery-validation/additional-methods.min.js')}}"></script>
     <!-- jQuery -->
     <script src="{{ asset('adminlte/plugins/jquery/jquery.min.js') }}"></script>
     <!-- Bootstrap 4 -->
