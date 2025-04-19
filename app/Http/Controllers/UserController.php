@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Yajra\DataTables\Facades\DataTables;
 use App\Models\LevelModel;
 use Illuminate\Support\Facades\Validator;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class UserController extends Controller
 {
@@ -357,5 +358,133 @@ class UserController extends Controller
         $user = UserModel::find($id);
         $user->delete();
         return redirect('/user');
+    }
+
+    public function import()
+    {
+        return view('user.import');
+    }
+
+    public function import_ajax(Request $request)
+    {
+        if ($request->ajax() || $request->wantsJson()) {
+            $rules = [
+                'file_user' => ['required', 'mimes:xlsx', 'max:1024']
+            ];
+
+            $validator = Validator::make($request->all(), $rules);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validasi Gagal',
+                    'msgField' => $validator->errors()
+                ]);
+            }
+
+            $file = $request->file('file_user');
+
+            try {
+                $reader = IOFactory::createReader('Xlsx');
+                $reader->setReadDataOnly(true);
+                $spreadsheet = $reader->load($file->getRealPath());
+                $sheet = $spreadsheet->getActiveSheet();
+                $data = $sheet->toArray(null, false, true, true); // Kolom A, B, C, D
+
+                $inserted = 0;
+                foreach ($data as $key => $row) {
+                    if ($key === 1) continue; // Skip header
+
+                    $levelId  = $row['A'] ?? null;
+                    $username = $row['B'] ?? null;
+                    $nama     = $row['C'] ?? null;
+                    $password = $row['D'] ?? null;
+
+                    if ($levelId && $username && $nama && $password) {
+                        // Cek apakah username sudah ada
+                        $existing = UserModel::where('username', $username)->first();
+                        if (!$existing) {
+                            UserModel::create([
+                                'level_id' => $levelId,
+                                'username' => $username,
+                                'nama'     => $nama,
+                                'password' => Hash::make($password),
+                            ]);
+                            $inserted++;
+                        }
+                    }
+                }
+
+                return response()->json([
+                    'status' => true,
+                    'message' => "Import berhasil. $inserted data user ditambahkan."
+                ]);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Terjadi kesalahan saat memproses file: ' . $e->getMessage()
+                ]);
+            }
+        }
+
+        return redirect('/');
+    }
+
+
+    public function export_excel()
+    {
+        // Ambil data user yang akan diekspor beserta nama levelnya
+        $users = UserModel::select('level_id', 'username', 'nama', 'password') // Tambahkan 'password' ke dalam select
+            ->orderBy('level_id')
+            ->with('level') // Pastikan model UserModel memiliki relasi 'level' ke model Level
+            ->get();
+
+        // Load library excel
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Set judul kolom
+        $sheet->setCellValue('A1', 'No');
+        $sheet->setCellValue('B1', 'Level');
+        $sheet->setCellValue('C1', 'Username');
+        $sheet->setCellValue('D1', 'Nama');
+        $sheet->setCellValue('E1', 'Password');
+
+        // Styling untuk header
+        $sheet->getStyle('A1:E1')->getFont()->setBold(true); // Sesuaikan range styling header
+
+        $no = 1;
+        $baris = 2;
+        foreach ($users as $key => $user) {
+            $sheet->setCellValue('A' . $baris, $no);
+            $sheet->setCellValue('B' . $baris, $user->level->level_nama); // Asumsi di model Level ada field 'level_nama'
+            $sheet->setCellValue('C' . $baris, $user->username);
+            $sheet->setCellValue('D' . $baris, $user->nama);
+            $sheet->setCellValue('E' . $baris, $user->password); // Ambil nilai password langsung dari model
+            $baris++;
+            $no++;
+        }
+
+        // Auto size kolom
+        foreach (range('A', 'E') as $columnID) { // Sesuaikan range auto size kolom
+            $sheet->getColumnDimension($columnID)->setAutoSize(true);
+        }
+
+        $sheet->setTitle('Data User'); // Set title sheet
+
+        $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
+        $filename = 'Data User ' . date('Y-m-d H:i:s') . '.xlsx';
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+        header('Cache-Control: max-age=1');
+        header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+        header('Cache-Control: cache, must-revalidate');
+        header('Pragma: public');
+
+        $writer->save('php://output');
+        exit;
     }
 }
