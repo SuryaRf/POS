@@ -5,7 +5,7 @@
         <div class="card-header">
             <h3 class="card-title">{{ $page->title ?? 'Daftar Supplier' }}</h3>
             <div class="card-tools">
-                <button onclick="modalAction('{{ url('/supplier/import') }}')" class="btn btn-info">Import Supplier</button>
+                <button onclick="modalAction('{{ url('/supplier/import') }}')" class="btn btn-danger">Import Supplier</button>
                 <a href="{{ url('/supplier/export_excel') }}" class="btn btn-primary"><i class="fa fa-file-excel"></i> Export Supplier</a>
                 <button onclick="modalAction('{{ url('supplier/create_ajax') }}')" class="btn btn-success">Tambah
                     Ajax</button>
@@ -21,7 +21,7 @@
             <div class="row">
                 <div class="col-md-12">
                     <div class="form-group row">
-                        {{-- Anda bisa menambahkan filter atau elemen lain di sini jika diperlukan --}}
+                        
                     </div>
                 </div>
             </div>
@@ -53,6 +53,7 @@
             });
         }
 
+
         var dataSupplier;
         $(document).ready(function () {
             dataSupplier = $('#table_supplier').DataTable({
@@ -64,7 +65,6 @@
                     dataType: "json",
                     headers: { 'X-CSRF-TOKEN': "{{ csrf_token() }}" },
                     data: function (d) {
-                        // Anda bisa menambahkan data filter ke sini jika diperlukan
                     }
                 },
                 columns: [

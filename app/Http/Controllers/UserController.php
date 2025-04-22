@@ -7,6 +7,7 @@ use App\Models\UserModel;
 use Illuminate\Support\Facades\Hash;
 use Yajra\DataTables\Facades\DataTables;
 use App\Models\LevelModel;
+use App\Models\SupplierModel;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -24,20 +25,19 @@ class UserController extends Controller
         $page = (object) [
             'title' => 'Daftar user yang terdaftar dalam sistem'
         ];
-        $activeMenu = 'user'; // Set menu yang sedang aktif
-
+        $activeMenu = 'user';
         $level = LevelModel::all();
 
         return view('user.index', ['breadcrumb' => $breadcrumb, 'page' => $page, 'level' => $level, 'activeMenu' => $activeMenu]);
     }
 
-    // Ambil data user dalam bentuk JSON untuk DataTables 
+
     public function list(Request $request)
     {
         $users = UserModel::select('user_id', 'username', 'nama', 'level_id')
             ->with('level');
 
-        // Filter data user berdasarkan level_id
+
         if ($request->level_id) {
             $users->where('level_id', $request->level_id);
         }
@@ -53,7 +53,7 @@ class UserController extends Controller
             ->rawColumns(['aksi'])
             ->make(true);
     }
-    // Menampilkan halaman form tambah user
+
     public function create()
     {
         $breadcrumb = (object) [
@@ -429,6 +429,22 @@ class UserController extends Controller
         }
 
         return redirect('/');
+    }
+
+    public function export_pdf()
+    {
+        $users = UserModel::select('level_id', 'username', 'nama', 'password') // Tambahkan 'password' ke dalam select
+            ->orderBy('level_id')
+            ->with('level') // Pastikan model UserModel memiliki relasi 'level' ke model Level
+            ->get();
+
+        // use Barryvdh\DomPDF\Facade\Pdf;
+        $pdf = Pdf::loadView('user.export_pdf', ['user' => $users]);
+        $pdf->setPaper('a4', 'portrait'); // set ukuran kertas dan orientasi
+        $pdf->setOption("isRemoteEnabled", true); // set true jika ada gambar dari url
+        $pdf->render();
+
+        return $pdf->stream('Data User ' . date('Y-m-d H:i:s') . '.pdf');
     }
 
 

@@ -22,7 +22,7 @@ class SupplierController extends Controller
         $page = (object) [
             'title' => 'Daftar supplier yang terdaftar dalam sistem'
         ];
-        $activeMenu = 'supplier'; // Set menu yang sedang aktif
+        $activeMenu = 'supplier'; 
 
         $supplier = SupplierModel::all();
 
@@ -33,7 +33,6 @@ class SupplierController extends Controller
     {
         $m_suppliers = SupplierModel::select('supplier_id', 'supplier_kode', 'supplier_nama', 'supplier_alamat');
 
-        // Filter data supplier berdasarkan supplier_id (jika diperlukan)
         if ($request->supplier_id) {
             $m_suppliers->where('supplier_id', $request->supplier_id);
         }

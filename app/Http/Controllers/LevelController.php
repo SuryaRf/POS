@@ -22,7 +22,7 @@ class LevelController extends Controller
         $page = (object) [
             'title' => 'Daftar level yang terdaftar dalam sistem'
         ];
-        $activeMenu = 'level'; // Set menu yang sedang aktif
+        $activeMenu = 'level'; 
 
         $level = LevelModel::all();
 
@@ -33,7 +33,6 @@ class LevelController extends Controller
     {
         $levels = LevelModel::select('level_id', 'level_kode', 'level_nama');
 
-        // Filter data level berdasarkan level_id (jika diperlukan, meskipun biasanya tidak ada filter ID untuk daftar semua level)
         if ($request->level_id) {
             $levels->where('level_id', $request->level_id);
         }
@@ -93,7 +92,7 @@ class LevelController extends Controller
     {
         if ($request->ajax() || $request->wantsJson()) {
             $rules = [
-                'level_kode' => 'required|string|max:10|unique:levels,level_kode', // Tambahkan unique rule
+                'level_kode' => 'required|string|max:10|unique:levels,level_kode',
                 'level_nama' => 'required|string|max:100',
             ];
 
@@ -117,7 +116,7 @@ class LevelController extends Controller
             ]);
         }
 
-        return redirect()->route('level.index'); // Redirect jika bukan AJAX request (gunakan route() dan beri nama rute)
+        return redirect()->route('level.index'); 
     }
 
 
@@ -199,8 +198,8 @@ class LevelController extends Controller
                 ]);
             }
         }
-        return redirect('/level')->with('error', 'Gagal menghapus data level.'); // Redirect ke halaman level jika bukan AJAX
-    }
+        return redirect('/level')->with('error', 'Gagal menghapus data level.'); 
+     }
 
     public function import()
     {
@@ -264,9 +263,25 @@ class LevelController extends Controller
         return redirect('/');
     }
 
+    public function export_pdf()
+    {
+        $users = LevelModel::select('level_id', 'username', 'nama', 'password') // Tambahkan 'password' ke dalam select
+            ->orderBy('level_id')
+            ->with('level') // Pastikan model UserModel memiliki relasi 'level' ke model Level
+            ->get();
+
+        // use Barryvdh\DomPDF\Facade\Pdf;
+        $pdf = Pdf::loadView('level.export_pdf', ['level' => $users]);
+        $pdf->setPaper('a4', 'portrait'); // set ukuran kertas dan orientasi
+        $pdf->setOption("isRemoteEnabled", true); // set true jika ada gambar dari url
+        $pdf->render();
+
+        return $pdf->stream('Data Level ' . date('Y-m-d H:i:s') . '.pdf');
+    }
+
     public function export_excel()
     {
-        //ambil data barang yang akan di export
+   
         $level = LevelModel::select('level_kode', 'level_nama')
             
             ->get();
@@ -279,7 +294,7 @@ class LevelController extends Controller
         $sheet->setCellValue('B1', 'Kode Level');
         $sheet->setCellValue('C1', 'Nama Level');
 
-        $sheet->getStyle('A1:F1')->getFont()->setBold(true);
+        $sheet->getStyle('A1:F1')->getFont()->setBold(true); 
 
         $no = 1;
         $baris = 2;
@@ -295,7 +310,7 @@ class LevelController extends Controller
             $sheet->getColumnDimension($coloumnID)->setAutoSize(true);
         }
 
-        $sheet->setTitle('Data Level'); // set title sheet
+        $sheet->setTitle('Data Level'); 
 
         $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
         $filename = 'Data Level ' . date('Y-m-d H:i:s') . '.xlsx';
