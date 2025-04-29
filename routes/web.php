@@ -10,6 +10,10 @@ use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Api\LoginController;
+use Illuminate\Http\Request;
+
+
 
 Route::pattern('id', '[0-9]+');
 
@@ -22,6 +26,8 @@ Route::post('register', [AuthController::class, 'postregister'])->name('postregi
 
 Route::get('profile', [AuthController::class, 'profile'])->middleware('auth')->name('profile');
 Route::post('profile/update', [AuthController::class, 'update'])->middleware('auth');
+
+
 
 Route::middleware(['auth'])->group(function () { 
 
